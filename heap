@@ -1,0 +1,314 @@
+package myfunc;
+
+public class tvalue {
+	public String tkey;
+	public Double score;
+	public tvalue(String objv, Double datav){
+		this.tkey = objv;
+        this.score = datav;  
+	}
+	
+	public void setkeyvalue(String id, Double value){
+		tkey = id;
+		score = value;
+	}
+	
+	public String getkey(){
+		return tkey;
+	}
+	
+	public Double getvalue(){
+		return score;
+	}
+
+}
+
+
+package myfunc;
+
+import java.util.Random;
+
+public class MinHeap {
+    // 将一个数组传入构造方法，并转换成一个小根堆  
+    public tvalue [] Heap;  
+    public int maxsize;  
+    public int size;  
+  
+  
+    public MinHeap(int max) {  
+        maxsize = max;  
+        Heap = new tvalue [maxsize];  
+        size = 0;  
+    }  
+    
+    /** 
+     * 自上而下调整 
+     *  
+     * @param start 
+     * @param endOfHeap 
+     */  
+    
+    // 获取右结点的数组下标  
+    private int right(int i)  
+    {    
+        return (i<<1) + 2;    
+    }     
+  
+    // 获取左结点的数组下标  
+    private int left(int i)   
+    {    
+        return (i<<1) + 1;    
+    }  
+    
+    private void swap(int i, int j)   
+    {    
+        tvalue tmp = Heap[i];    
+        Heap[i] = Heap[j];    
+        Heap[j] = tmp;    
+    }
+    
+    public void filterDown(int start, int endOfHeap) {  
+        int i = start;  
+        int j = left(i); // j是i的左子女位置  
+        tvalue temp = Heap[i];  
+  
+        while (j <= endOfHeap) { // 检查是否到最后位置  
+            if (j < endOfHeap // 让j指向两子女中的小者  
+                    && (Heap[j].getvalue() > Heap[j + 1].getvalue())) {  
+                j=right(i);  
+            }  
+            if (temp.getvalue() <= Heap[j].getvalue()) { // 小则不做调整  
+            	Heap[i] = temp;
+                break;  
+            } else { // 否则小者上移，i，j下降  
+            	swap(i, j);  
+                i = j;  
+                j = (j<<1) + 1;  
+            }  
+        }  
+        Heap[i] = temp;  
+    }  
+  
+    /** 
+     * 自下而上的调整:从结点start开始到0为止，自下向上比较，如果子女的值小于双亲结点的值则互相交换 
+     *  
+     * @param start 
+     */  
+    public void filterUp(int start) {  
+        int j = start;  
+        int i = (j - 1) >> 1;  
+        tvalue temp = Heap[j];  
+  
+        while (j > 0) { // 沿双亲结点路径向上直达根节点  
+            if (Heap[i].getvalue() <= temp.getvalue()) {// 双亲结点值小，不调整  
+                break;  
+            } else {// 双亲结点值大，调整  
+            	Heap[j] = Heap[i];  
+                j = i;  
+                i = (i - 1) >> 1;  
+            }  
+            Heap[j] = temp; // 回送  
+        }  
+    }  
+  
+    /** 
+     * 堆中插入结点 
+     *  
+     * @param key 
+     * @return 
+     * @throws MinHeapException 
+     */
+    public class MinHeapException extends Exception {  
+		private static final long serialVersionUID = 1L;
+		public MinHeapException() {  
+            super("MinHeapException");  
+        }  
+      
+        public MinHeapException(String exMsg) {  
+            super(exMsg);  
+        }  
+    }  
+    
+    public boolean insert(String key, Double value) throws MinHeapException {  
+        boolean bool = true;  
+        if (isFull()) {  
+            bool = false;  
+            throw new MinHeapException("MinHeap is full!");  
+        } else {  
+            tvalue newNode = new tvalue(key, value);  
+            Heap[size] = newNode;  
+            filterUp(size);  
+            size++;  
+        }  
+        return bool;  
+    }  
+  
+    /** 
+     * 删除堆中的最小值 
+     *  
+     * @return 
+     * @throws MinHeapException 
+     */  
+    public tvalue removeMin() throws MinHeapException {   
+    	if (isEmpty()) {  
+            throw new MinHeapException("MinHeap is empty!");
+        } else { 
+        	tvalue root = Heap[0];  
+        	Heap[0] = Heap[size - 1];  
+        	size--;  
+        	filterDown(0, size - 1);  
+        	return root;
+        }
+    }
+    
+    public tvalue poptop() {	
+        tvalue root = Heap[0]; 
+        if(size==1){
+        	size--;
+        	return root;
+    	}
+        Heap[0] = Heap[size - 1];  
+        size--;
+        filterDown(0, size - 1);        
+        return root;
+    }
+  
+    public boolean isEmpty() {  
+        return size == 0;  
+    }  
+  
+    public boolean isFull() {  
+        return size == maxsize;  
+    }   
+    
+    public void makeEmpty() {  
+        size = 0;  
+    }  
+ 
+    public tvalue getRoot(){
+    	return Heap[0];
+    }
+    
+    public void setRoot(String tid, Double tvalue){
+    	Heap[0].tkey = tid;
+    	Heap[0].score = tvalue;
+    	filterDown(0, size-1);
+    }
+    
+    public void update(String key, Double value) {
+    	if (isFull()) {
+    		tvalue root = getRoot();
+    		if (root.getvalue() > value){
+    	    	return;
+    	    }
+    		setRoot(key, value);
+    	} else {  
+    		tvalue newNode = new tvalue(key, value);  
+    		Heap[size] = newNode;  
+    		filterUp(size);  
+    		size++;  
+    	}
+    }
+    
+    public tvalue [] getentry(){
+    	return Heap;
+    }
+    
+    public int gethsize() {  
+        return size;  
+    } 
+    
+    public tvalue [] sort()  
+    {  
+        // 先取K个元素放入一个数组topk中  
+    	tvalue [] tset = new tvalue[size];
+        // 转换成最小堆  
+        // 从k开始，遍历data  
+        for(int i= size-1;i >= 0;i--)  
+        {  
+            tvalue root = this.poptop(); 
+            tset[i] = new tvalue(root.getkey(), root.getvalue());
+            //this.displayHeap(i);
+            //System.out.println(root.getkey()+":"+root.getvalue().toString()+"\n");
+            // 当数据大于堆中最小的数（根节点）时，替换堆中的根节点，再转换成堆  
+        }  
+        //System.out.println();  
+        return tset;  
+    }
+    
+    public String sortstr()  
+    {  
+    	String tenstr = "";
+        for(int i= size-1;i >= 0;i--)  
+        {  
+            tvalue root = this.poptop();
+            tenstr = "," + root.getkey() + ":" + root.getvalue().toString() + tenstr;
+        }
+        String tts = tenstr.substring(1,tenstr.length());
+        //System.out.println();  
+        return tts;  
+    }
+    /** 
+     * 按某种格式输出堆 
+     */  
+    public void displayHeap(int tsize) {  
+        System.out.print("Heap: ");  
+        for (int i = 0; i < tsize; i++) {  
+            if (Heap[i] != null) {  
+                System.out.print(Heap[i].getkey() + ":" + Heap[i].getvalue().toString()+"\n");  
+            } else {  
+                System.out.print("--");  
+            }  
+        }  
+        System.out.println();  
+  
+        int nBlanks = 32; // heap format  
+        int itemsPerRow = 1;  
+        int column = 0;  
+        int j = 0; // current item  
+        String dots = "...............................";  
+        System.out.println(dots + dots); // dotted top line  
+  
+        while (tsize > 0) { // for each heap item  
+            if (column == 0) { // first item in row  
+                for (int k = 0; k < nBlanks; k++) { // preceding blanks  
+                    System.out.print(" ");  
+                }  
+            }  
+            System.out.print(Heap[j].getkey() + ":" + Heap[j].getvalue().toString()); // display item  
+  
+            if (++j == tsize) { // done?  
+                break;  
+            }  
+  
+            if (++column == itemsPerRow) { // end of row?  
+                nBlanks >>= 1; // half the blanks  
+                itemsPerRow <<= 1; // twice the items  
+                column = 0; // start over on  
+                System.out.println(); // next row  
+            } else { // next item on row  
+                for (int k = 0; k < (nBlanks-1)<<1; k++) {  
+                    System.out.print(" "); // interim blanks
+                }  
+            }  
+        }  
+        System.out.println("\n" + dots + dots);  
+    }  
+
+    public static void main(String args[]) throws MinHeapException
+    {  
+    	int tsize = 15;
+    	MinHeap hm = new MinHeap(30);
+    	Random random = new Random();
+    	for (int i = 0; i < tsize; i++){
+    		hm.insert(Integer.toString(i), random.nextDouble());
+    		//hm.insert(Integer.toString(i), (tsize+1-i)*1.0);
+    	}
+    	hm.displayHeap(tsize);
+    	tvalue [] ttopk = hm.sort();
+    	for (int i = 0; i < tsize; i++){
+    		System.out.println(ttopk[i].getkey()+":"+ttopk[i].getvalue().toString()+"\n");
+    	}  
+          
+    }  
+}
